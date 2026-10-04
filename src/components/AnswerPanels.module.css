@@ -1,0 +1,276 @@
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  transition: opacity 0.2s;
+}
+
+.dimmed {
+  opacity: 0.35;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.panelTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panelTag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+.panelName {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.latency {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.baselineBody {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.awareBody {
+  padding: 16px 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.answerLabel {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.baselineAnswer {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text);
+  text-wrap: pretty;
+}
+
+.awareAnswer {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  text-wrap: pretty;
+}
+
+.cites {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-faint);
+}
+
+/* Conflict banner */
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-radius: 6px;
+}
+
+.bannerIcon {
+  flex: none;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.bannerText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.bannerTitle {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.bannerType {
+  font-size: 12.5px;
+}
+
+.bannerPair {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border: 1px solid;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.bannerSolid {
+  padding: 13px 16px;
+  background: var(--amber-solid);
+  color: var(--amber-ink);
+}
+
+.bannerSolid .bannerIcon {
+  width: 30px;
+  height: 30px;
+  background: var(--amber-ink);
+  color: oklch(0.86 0.15 82);
+  font-size: 17px;
+}
+
+.bannerSolid .bannerPair {
+  border-color: var(--amber-ink);
+}
+
+.bannerTint {
+  padding: 12px 16px;
+  background: var(--amber-tint);
+  border: 1.5px solid var(--amber);
+  color: var(--amber-ink-soft);
+}
+
+.bannerTint .bannerIcon {
+  width: 28px;
+  height: 28px;
+  background: var(--amber-dot);
+  color: var(--amber-ink);
+  font-size: 16px;
+}
+
+.bannerTint .bannerPair {
+  border-color: oklch(0.7 0.13 75);
+}
+
+/* Conflicting source pair */
+
+.pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+
+.notEqual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: oklch(0.6 0.14 70);
+}
+
+.source {
+  border: 1px solid var(--amber-line);
+  border-radius: 6px;
+  padding: 11px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  background: #fffdf8;
+}
+
+.sourceHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.sourceId {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sourceDate {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #6b7079;
+}
+
+.sourceTitle {
+  font-size: 11.5px;
+  color: var(--text-faint);
+}
+
+.sourceExcerpt {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.mark {
+  white-space: nowrap;
+  background: var(--amber-mark);
+  color: #2b1d00;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* Clean control */
+
+.noConflict {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid #dfe2e6;
+  border-radius: 6px;
+  background: var(--bg);
+  font-size: 13px;
+  color: #4a4f57;
+}
+
+.noConflictDot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ok);
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

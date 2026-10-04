@@ -1,0 +1,16 @@
+.page {
+  max-width: 1440px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 22px 40px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .page {
+    padding: 18px 16px 24px;
+  }
+}
