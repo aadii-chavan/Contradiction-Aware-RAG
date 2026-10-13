@@ -1,22 +1,26 @@
-import { SCORES, type Preset } from '../data/presets';
+import type { QueryResult } from '../types';
+import Meter from './Meter';
 import styles from './RetrievedContext.module.css';
 
 interface RetrievedContextProps {
-  preset: Preset;
+  result: QueryResult | null;
   showScoreBars: boolean;
 }
 
-export default function RetrievedContext({ preset, showScoreBars }: RetrievedContextProps) {
-  const pairDelta = (SCORES[0] - SCORES[1]).toFixed(2);
+export default function RetrievedContext({ result, showScoreBars }: RetrievedContextProps) {
+  const chunks = result?.chunks ?? [];
+  const pairIds = new Set(result?.aware.pair.map((p) => p.id));
+  const pairScores = chunks.filter((c) => pairIds.has(c.id)).map((c) => c.score);
+  const pairDelta = pairScores.length === 2 ? Math.abs(pairScores[0] - pairScores[1]).toFixed(2) : null;
 
   return (
-    <section className={styles.section}>
+    <section id="context" className={styles.section}>
       <div className={styles.head}>
         <div className={styles.headLeft}>
           <h2 className={styles.heading}>Retrieved context</h2>
-          <span className={styles.caption}>top-4 chunks by cosine similarity, shared by both conditions</span>
+          <span className={styles.caption}>top-{chunks.length || 4} chunks by cosine similarity, shared by both conditions</span>
         </div>
-        {preset.conflict && (
+        {pairDelta && (
           <div className={styles.note}>
             Conflicting pair separated by <span className={styles.delta}>Δ {pairDelta}</span> — retrieval alone
             can't tell them apart
@@ -24,32 +28,18 @@ export default function RetrievedContext({ preset, showScoreBars }: RetrievedCon
         )}
       </div>
       <div className={styles.grid}>
-        {preset.conflict && (
-          <>
-            <div className={styles.bracket}>
-              <div className={styles.bracketLabel}>CONFLICTING PAIR</div>
+        {chunks.map((chunk) => (
+          <div key={chunk.id} className={`${styles.chunk} ${pairIds.has(chunk.id) ? styles.chunkPair : ''}`}>
+            <div className={styles.chunkHead}>
+              <span className={styles.chunkId}>{chunk.id}</span>
+              <span className={styles.score}>{chunk.score.toFixed(2)}</span>
             </div>
-            <div className={styles.bracketSpacer} />
-          </>
-        )}
-        {preset.chunks.map((chunk, i) => {
-          // The conflicting pair is always the two top-ranked chunks.
-          const inPair = preset.conflict && i < 2;
-          return (
-            <div key={chunk.id} className={`${styles.chunk} ${inPair ? styles.chunkPair : ''}`}>
-              <div className={styles.chunkHead}>
-                <span className={styles.chunkId}>{chunk.id}</span>
-                <span className={styles.score}>{SCORES[i].toFixed(2)}</span>
-              </div>
-              {showScoreBars && (
-                <div className={styles.bar}>
-                  <div className={styles.barFill} style={{ width: `${SCORES[i] * 100}%` }} />
-                </div>
-              )}
-              <div className={styles.chunkText}>{chunk.text}</div>
+            {showScoreBars && <Meter value={chunk.score} segments={10} size="sm" />}
+            <div className={styles.chunkText}>
+              {chunk.title} — {chunk.text}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </section>
   );

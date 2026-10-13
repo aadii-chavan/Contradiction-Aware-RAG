@@ -1,0 +1,23 @@
+.meter {
+  display: flex;
+  gap: 8px;
+  height: 44px;
+}
+
+.sm {
+  gap: 5px;
+  height: 20px;
+}
+
+.meter span {
+  flex: 1;
+  border-radius: 999px;
+}
+
+.on {
+  background: var(--ink);
+}
+
+.off {
+  border: 1.5px dashed rgba(21, 21, 19, 0.28);
+}

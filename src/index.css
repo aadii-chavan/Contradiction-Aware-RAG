@@ -1,31 +1,30 @@
 :root {
-  --bg: #f7f8f9;
-  --surface: #fff;
-  --surface-muted: #f3f4f6;
-  --ink: #16181d;
-  --ink-hover: #33363d;
-  --text: #2a2e35;
-  --text-muted: #5c626b;
-  --text-faint: #8a8f98;
-  --line: #e1e3e7;
-  --line-soft: #e6e8eb;
-  --line-strong: #d5d8dd;
-  --accent: oklch(0.48 0.13 255);
-  --accent-hover: oklch(0.38 0.13 255);
-  --ok: oklch(0.62 0.12 160);
+  --frame: #f3f3f2;
+  --bg: #e9ebe9;
+  --surface: #ffffff;
+  --card: #ecedec;
+  --card-line: #e3e5e3;
+  --ink: #151513;
+  --ink-soft: #2b2b28;
+  --text: #2b2b28;
+  --text-muted: #6b6e6a;
+  --text-faint: #9a9d98;
+  --lime: #eefb8f;
+  --lime-strong: #e4f66a;
+  --lime-line: #d6e85a;
+  --danger-bg: #fdf0ef;
+  --danger-line: #f0c4c0;
+  --danger-ink: #7a1f17;
 
-  --amber: oklch(0.76 0.14 75);
-  --amber-dot: oklch(0.8 0.15 75);
-  --amber-solid: oklch(0.84 0.145 80);
-  --amber-tint: oklch(0.975 0.035 85);
-  --amber-ring: oklch(0.95 0.05 85);
-  --amber-mark: oklch(0.88 0.13 85);
-  --amber-line: oklch(0.85 0.08 80);
-  --amber-ink: #3b2700;
-  --amber-ink-soft: #4a3200;
-
-  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --radius-xl: 32px;
+  --radius-lg: 24px;
+  --radius-md: 18px;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
@@ -36,12 +35,9 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-a {
-  color: var(--accent);
-}
-
-a:hover {
-  color: var(--accent-hover);
+button,
+input {
+  font-family: inherit;
 }
 
 input::placeholder {
@@ -52,4 +48,8 @@ h1,
 h2,
 p {
   margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
 }

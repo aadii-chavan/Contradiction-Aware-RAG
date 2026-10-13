@@ -19,7 +19,26 @@ export default function QueryBar({
   onSelectPreset,
 }: QueryBarProps) {
   return (
-    <section className={styles.section}>
+    <section id="query" className={styles.section}>
+      <div className={styles.presets}>
+        <div className={styles.presetsLabel}>Presets</div>
+        {PRESET_KEYS.map((key) => {
+          const preset = PRESETS[key];
+          const active = key === activePreset;
+          return (
+            <button
+              key={key}
+              type="button"
+              className={`${styles.chip} ${active ? styles.chipActive : ''}`}
+              aria-pressed={active}
+              onClick={() => onSelectPreset(key)}
+            >
+              <span className={`${styles.chipDot} ${preset.conflict ? styles.chipDotConflict : ''}`} />
+              {preset.label}
+            </button>
+          );
+        })}
+      </div>
       <form
         className={styles.row}
         onSubmit={(e) => {
@@ -40,25 +59,6 @@ export default function QueryBar({
           {running ? 'Running…' : 'Run both ▸'}
         </button>
       </form>
-      <div className={styles.presets}>
-        <div className={styles.presetsLabel}>Presets</div>
-        {PRESET_KEYS.map((key) => {
-          const preset = PRESETS[key];
-          const active = key === activePreset;
-          return (
-            <button
-              key={key}
-              type="button"
-              className={`${styles.chip} ${active ? styles.chipActive : ''}`}
-              aria-pressed={active}
-              onClick={() => onSelectPreset(key)}
-            >
-              <span className={`${styles.chipDot} ${preset.conflict ? styles.chipDotConflict : ''}`} />
-              {preset.label}
-            </button>
-          );
-        })}
-      </div>
     </section>
   );
 }

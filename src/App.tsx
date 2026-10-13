@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { PRESETS, type PresetKey } from './data/presets';
+import { fetchInfo, runQuery } from './api';
+import type { QueryResult, ServerInfo } from './types';
+import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import QueryBar from './components/QueryBar';
 import AnswerPanels, { type BannerStyle } from './components/AnswerPanels';
@@ -13,48 +16,68 @@ interface AppProps {
   showScoreBars?: boolean;
 }
 
-const RUN_DURATION_MS = 900;
-
 export default function App({
   defaultPreset = 'direct',
   bannerStyle = 'solid',
   showScoreBars = true,
 }: AppProps) {
   const [presetKey, setPresetKey] = useState<PresetKey>(defaultPreset);
-  // null means "show the preset's own query"; editing the input overrides it.
-  const [query, setQuery] = useState<string | null>(null);
+  const [query, setQuery] = useState(PRESETS[defaultPreset].query);
   const [running, setRunning] = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const [result, setResult] = useState<QueryResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<ServerInfo | null>(null);
+  // Guards against an older in-flight request overwriting a newer one.
+  const requestId = useRef(0);
 
-  useEffect(() => () => clearTimeout(timer.current), []);
-
-  const preset = PRESETS[presetKey];
+  useEffect(() => {
+    fetchInfo().then(setInfo).catch(() => setInfo(null));
+  }, []);
 
   const selectPreset = (key: PresetKey) => {
     setPresetKey(key);
-    setQuery(null);
+    setQuery(PRESETS[key].query);
   };
 
-  const run = () => {
+  const run = async () => {
+    if (!query.trim()) return;
+    const id = ++requestId.current;
     setRunning(true);
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => setRunning(false), RUN_DURATION_MS);
+    setError(null);
+    try {
+      const next = await runQuery(query);
+      if (id === requestId.current) setResult(next);
+    } catch (err) {
+      if (id === requestId.current) setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      if (id === requestId.current) setRunning(false);
+    }
   };
 
   return (
-    <div className={styles.page}>
-      <Header />
+    <div className={styles.shell}>
+      <Sidebar />
+      <main className={styles.page}>
+      <Header info={info} />
       <QueryBar
-        query={query ?? preset.query}
+        query={query}
         onQueryChange={setQuery}
         onRun={run}
         running={running}
         activePreset={presetKey}
         onSelectPreset={selectPreset}
       />
-      <AnswerPanels preset={preset} bannerStyle={bannerStyle} dimmed={running} />
-      <RetrievedContext preset={preset} showScoreBars={showScoreBars} />
+      {info && !info.llmConfigured && (
+        <div className={styles.notice}>
+          LLM not configured. Copy <code>.env.example</code> to <code>.env</code>, set LLM_API_KEY and LLM_MODEL, then
+          restart <code>npm run dev</code>.
+        </div>
+      )}
+      {error && <div className={styles.error} role="alert">{error}</div>}
+      <AnswerPanels result={result} bannerStyle={bannerStyle} loading={running} />
+      <RetrievedContext result={result} showScoreBars={showScoreBars} />
       <Evaluation />
+      </main>
     </div>
   );
 }
