@@ -4,6 +4,8 @@ export function formatContext(chunks: RetrievedChunk[]): string {
   return chunks.map((c) => `[${c.id}] (${c.date}) ${c.title}\n${c.text}`).join('\n\n');
 }
 
+export const DEFAULT_PROMPTS = (): { baseline: string; aware: string } => ({ baseline: BASELINE_SYSTEM, aware: AWARE_SYSTEM });
+
 export const BASELINE_SYSTEM = `You answer questions about a research lab's internal notes using only the provided context.
 Answer concisely and cite the document IDs you rely on in square brackets, e.g. [DOC-04].`;
 

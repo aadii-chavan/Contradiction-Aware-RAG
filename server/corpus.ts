@@ -1,322 +1,73 @@
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+
 export interface Doc {
   id: string;
   title: string;
   date: string;
   text: string;
+  /** A sample question this document answers. */
+  prompt?: string;
 }
 
-/** Seeded lab-notes corpus. Several documents deliberately contradict each other. */
-export const CORPUS: Doc[] = [
-  {
-    id: 'DOC-01',
-    title: 'Histology dataset overview',
-    date: '2024-01-18',
-    text: 'The histology set contains 24,000 stained tissue patches at 224 px resolution, split 80/10/10 into train, validation and test. Patches are labelled with one of nine tissue classes. Stain normalisation is applied before training.',
-  },
-  {
-    id: 'DOC-02',
-    title: 'Pipeline config v1',
-    date: '2023-09-14',
-    text: 'ResNet-50 pipeline configuration. Each conv block is followed by BatchNorm (momentum 0.1). Epsilon is 1e-5 and running statistics are frozen at evaluation time. Training uses SGD with momentum 0.9.',
-  },
-  {
-    id: 'DOC-03',
-    title: 'Seq2seq baseline config',
-    date: '2023-11-02',
-    text: 'The seq2seq transformer baseline uses inverse square-root learning rate decay after warmup. Dropout is 0.1 and the model has six encoder and six decoder layers.',
-  },
-  {
-    id: 'DOC-04',
-    title: 'ViT fine-tuning recipe',
-    date: '2024-03-12',
-    text: 'ViT-B/16 fine-tuning recipe. Use a peak learning rate of 3e-4 with AdamW and cosine decay. Linear warmup runs for 500 steps. Use a batch size of 64 and weight decay 0.05.',
-  },
-  {
-    id: 'DOC-05',
-    title: 'Mixed precision notes',
-    date: '2024-04-20',
-    text: 'All vision runs use fp16 autocast with dynamic loss scaling starting at 2^16. Gradient clipping is set to 1.0. bf16 was not evaluated.',
-  },
-  {
-    id: 'DOC-06',
-    title: 'GPU cluster notes',
-    date: '2024-08-09',
-    text: 'On the 8-GPU node the ViT-B/16 histology fine-tuning job runs with a global batch size of 128 to saturate memory. Jobs are queued through the shared scheduler with a 24 hour limit.',
-  },
-  {
-    id: 'DOC-07',
-    title: 'Warmup schedules',
-    date: '2023-11-15',
-    text: 'Linear warmup reduces early loss spikes in ViTs. The transformer baseline uses 4,000 steps of linear warmup to a peak learning rate of 7e-4.',
-  },
-  {
-    id: 'DOC-08',
-    title: 'Evaluation protocol',
-    date: '2023-10-05',
-    text: 'Evaluation uses a single centre crop at 224 px and reports top-1 accuracy. No test-time augmentation is applied. Each result is averaged over three seeds.',
-  },
-  {
-    id: 'DOC-09',
-    title: 'Histology ablation log',
-    date: '2024-06-30',
-    text: 'Learning rate sweep for ViT-B/16 on the histology split, from 1e-5 to 3e-4. Runs diverged above 5e-5; the stable peak learning rate was 1e-5. Warmup length had little effect.',
-  },
-  {
-    id: 'DOC-10',
-    title: 'Translation baselines',
-    date: '2023-11-20',
-    text: 'Label smoothing 0.1 is used for all translation baselines. Beam size is 5 with length penalty 0.6.',
-  },
-  {
-    id: 'DOC-11',
-    title: 'Pipeline changelog',
-    date: '2025-02-03',
-    text: 'ResNet-50 pipeline changelog. Switched normalization to GroupNorm (32 groups) at batch size 8 per GPU, because BatchNorm statistics were noisy at small batch sizes.',
-  },
-  {
-    id: 'DOC-12',
-    title: 'AdamW notes',
-    date: '2024-02-10',
-    text: 'AdamW with decoupled weight decay 0.05 is used across vision runs. For transformer runs beta2 is 0.98.',
-  },
-  {
-    id: 'DOC-13',
-    title: 'Cluster inventory',
-    date: '2023-07-11',
-    text: 'Cluster inventory. Each compute node has 4 NVIDIA A100 GPUs with 40 GB of memory. Nodes are connected by 100 Gb/s InfiniBand.',
-  },
-  {
-    id: 'DOC-14',
-    title: 'Cluster upgrade',
-    date: '2025-01-27',
-    text: 'Cluster upgrade report. Compute nodes were upgraded and now have 8 NVIDIA H100 GPUs with 80 GB of memory each.',
-  },
-  {
-    id: 'DOC-15',
-    title: 'Reproducibility checklist',
-    date: '2024-02-05',
-    text: 'Reproducibility checklist. The default random seed is 42 for data shuffling, weight initialisation and augmentation. Always log the seed.',
-  },
-  {
-    id: 'DOC-16',
-    title: 'Seed policy memo',
-    date: '2024-09-12',
-    text: 'Seed policy memo. After the collision audit the default random seed is 1337 for all experiments; seed 42 is retired.',
-  },
-  {
-    id: 'DOC-17',
-    title: 'Segmentation setup',
-    date: '2023-12-04',
-    text: 'Segmentation setup. U-Net inputs are resized to 256 x 256 pixels before training. Masks use nearest-neighbour resizing.',
-  },
-  {
-    id: 'DOC-18',
-    title: 'Segmentation ablation',
-    date: '2024-10-21',
-    text: 'Segmentation ablation. U-Net inputs are resized to 512 x 512 pixels, which improved boundary Dice over lower resolutions.',
-  },
-  {
-    id: 'DOC-19',
-    title: 'BERT classifier config',
-    date: '2024-01-22',
-    text: 'BERT classifier config. The classification head applies dropout 0.1 on the pooled output. Fine-tuning uses three epochs.',
-  },
-  {
-    id: 'DOC-20',
-    title: 'Overfitting report',
-    date: '2025-03-18',
-    text: 'Overfitting report. To reduce overfitting the BERT classifier head dropout was raised to 0.3 on the pooled output.',
-  },
-  {
-    id: 'DOC-21',
-    title: 'Tokenizer v1',
-    date: '2023-08-30',
-    text: 'Tokenizer v1. The SentencePiece tokenizer has a vocabulary size of 32,000 pieces trained on the lab corpus.',
-  },
-  {
-    id: 'DOC-22',
-    title: 'Tokenizer v2 release notes',
-    date: '2024-11-08',
-    text: 'Tokenizer v2 release notes. The SentencePiece vocabulary was expanded to 50,000 pieces to cover code and scientific notation.',
-  },
-  {
-    id: 'DOC-23',
-    title: 'ASR training plan',
-    date: '2024-03-03',
-    text: 'ASR training plan. The speech recognition model is trained for 60 epochs with SpecAugment enabled.',
-  },
-  {
-    id: 'DOC-24',
-    title: 'ASR run report',
-    date: '2024-07-19',
-    text: 'ASR run report. The final speech recognition model was trained for 100 epochs; validation error kept improving past epoch 60.',
-  },
-  {
-    id: 'DOC-25',
-    title: 'Augmentation policy',
-    date: '2024-01-09',
-    text: 'Augmentation policy. RandAugment is applied with 2 operations at magnitude 9 for all image classification runs.',
-  },
-  {
-    id: 'DOC-26',
-    title: 'Augmentation tuning',
-    date: '2024-12-02',
-    text: 'Augmentation tuning. A sweep found RandAugment magnitude 15 with 2 operations gives the best robustness.',
-  },
-  {
-    id: 'DOC-27',
-    title: 'Checkpointing guide',
-    date: '2023-10-17',
-    text: 'Checkpointing guide. Training checkpoints are saved every 1,000 steps, keeping the last five.',
-  },
-  {
-    id: 'DOC-28',
-    title: 'Storage cleanup memo',
-    date: '2025-04-14',
-    text: 'Storage cleanup memo. To reduce disk usage, training checkpoints are now saved every 5,000 steps instead of more often.',
-  },
-  {
-    id: 'DOC-29',
-    title: 'GAN training notes',
-    date: '2024-02-26',
-    text: 'GAN training notes. The discriminator is updated 5 times for every generator update, following the original recipe.',
-  },
-  {
-    id: 'DOC-30',
-    title: 'GAN stability study',
-    date: '2024-08-23',
-    text: 'GAN stability study. We found one discriminator update per generator update was most stable, replacing the earlier 5:1 ratio.',
-  },
-  {
-    id: 'DOC-31',
-    title: 'Dual encoder spec',
-    date: '2023-12-12',
-    text: 'Dual encoder spec. Both towers project into an embedding dimension of 768 with L2 normalisation.',
-  },
-  {
-    id: 'DOC-32',
-    title: 'Dual encoder compression',
-    date: '2025-02-20',
-    text: 'Dual encoder compression. The projection was reduced to an embedding dimension of 384 to halve index size.',
-  },
-  {
-    id: 'DOC-33',
-    title: 'Dataset licensing',
-    date: '2024-04-08',
-    text: 'Dataset licensing. The satellite imagery dataset is released under the CC BY 4.0 license, allowing commercial reuse with attribution.',
-  },
-  {
-    id: 'DOC-34',
-    title: 'Legal review',
-    date: '2024-09-30',
-    text: 'Legal review. The satellite imagery dataset is restricted to non-commercial use under CC BY-NC 4.0 because of the provider terms.',
-  },
-  {
-    id: 'DOC-35',
-    title: 'Sentiment dataset card',
-    date: '2023-09-25',
-    text: 'Sentiment dataset card. The sentiment validation set contains 5,000 reviews, balanced across positive and negative.',
-  },
-  {
-    id: 'DOC-36',
-    title: 'Sentiment dataset errata',
-    date: '2024-05-14',
-    text: 'Sentiment dataset errata. After deduplication the sentiment validation set contains 8,000 reviews; the earlier count was wrong.',
-  },
-  {
-    id: 'DOC-37',
-    title: 'Large batch training',
-    date: '2024-03-27',
-    text: 'Large batch training. Language model training uses gradient accumulation over 4 steps to reach the target batch size.',
-  },
-  {
-    id: 'DOC-38',
-    title: 'Memory profiling',
-    date: '2024-10-09',
-    text: 'Memory profiling. Language model training uses gradient accumulation over 8 steps so it fits on 40 GB devices.',
-  },
-  {
-    id: 'DOC-39',
-    title: 'Deployment SLA',
-    date: '2024-05-06',
-    text: 'Deployment SLA. The deployed inference API targets a p95 latency of 200 ms at peak traffic.',
-  },
-  {
-    id: 'DOC-40',
-    title: 'SLA revision',
-    date: '2025-05-12',
-    text: 'SLA revision. The p95 latency target for the deployed inference API was relaxed to 350 ms after the model upsizing.',
-  },
-  {
-    id: 'DOC-41',
-    title: 'Captioning decoding',
-    date: '2023-11-28',
-    text: 'Captioning decoding. Image captions are generated with a beam size of 3 and no length penalty.',
-  },
-  {
-    id: 'DOC-42',
-    title: 'Captioning evaluation',
-    date: '2024-06-17',
-    text: 'Captioning evaluation. Image captioning decoding uses a beam size of 10, which raised CIDEr noticeably.',
-  },
-  {
-    id: 'DOC-43',
-    title: 'DQN agent config',
-    date: '2024-01-30',
-    text: 'DQN agent config. The DQN agent stores experience in a replay buffer of 100,000 transitions.',
-  },
-  {
-    id: 'DOC-44',
-    title: 'DQN scaling notes',
-    date: '2024-11-25',
-    text: 'DQN scaling notes. The DQN agent replay buffer was enlarged to 1,000,000 transitions to stabilise learning.',
-  },
-  {
-    id: 'DOC-45',
-    title: 'Data cleaning pipeline',
-    date: '2024-02-14',
-    text: 'Data cleaning pipeline. Two documents are treated as duplicates when their MinHash similarity exceeds 0.95.',
-  },
-  {
-    id: 'DOC-46',
-    title: 'Dedup threshold change',
-    date: '2025-01-08',
-    text: 'Dedup threshold change. The duplicate threshold for data cleaning was lowered so documents with MinHash similarity above 0.85 are now removed.',
-  },
-  {
-    id: 'DOC-47',
-    title: 'Experiment tracking',
-    date: '2024-03-15',
-    text: 'Experiment tracking. Metrics are logged to the Weights & Biases project lab-vision every 50 steps.',
-  },
-  {
-    id: 'DOC-48',
-    title: 'Code review policy',
-    date: '2024-04-02',
-    text: 'Code review policy. Every pull request needs two approvals from lab members before it can be merged.',
-  },
-  {
-    id: 'DOC-49',
-    title: 'Backup schedule',
-    date: '2024-05-20',
-    text: 'Backup schedule. All datasets are backed up nightly at 02:00 to cold storage and retained for 90 days.',
-  },
-  {
-    id: 'DOC-50',
-    title: 'Onboarding checklist',
-    date: '2024-06-11',
-    text: 'Onboarding checklist. New members receive cluster access only after completing the security training and signing the data-use agreement.',
-  },
-  {
-    id: 'DOC-51',
-    title: 'Environment standards',
-    date: '2024-07-01',
-    text: 'Environment standards. All lab projects use Python 3.11 with PyTorch 2.3.',
-  },
-  {
-    id: 'DOC-52',
-    title: 'Lockfile conventions',
-    date: '2024-09-05',
-    text: 'Lockfile conventions. Environment lockfiles pin Python 3.11 and PyTorch 2.3 for reproducibility.',
-  },
-];
+export type DocInput = Pick<Doc, 'title' | 'date' | 'text' | 'prompt'>;
+
+/** Seeded lab-notes corpus, editable from the Documents page. Several documents deliberately contradict each other. */
+const FILE = resolve(process.cwd(), 'data/corpus.json');
+
+let docs: Doc[] = existsSync(FILE) ? (JSON.parse(readFileSync(FILE, 'utf8')) as Doc[]) : [];
+let version = 0;
+const listeners: (() => void)[] = [];
+
+function persist() {
+  mkdirSync(dirname(FILE), { recursive: true });
+  writeFileSync(FILE, JSON.stringify(docs, null, 2) + '\n');
+  version++;
+  listeners.forEach((fn) => fn());
+}
+
+/** Registers a callback fired after every corpus change (used to rebuild the retrieval index). */
+export const onCorpusChange = (fn: () => void) => listeners.push(fn);
+
+export const getDocs = (): readonly Doc[] => docs;
+export const corpusVersion = () => version;
+
+function validate(input: DocInput): DocInput {
+  const title = String(input.title ?? '').trim();
+  const date = String(input.date ?? '').trim();
+  const text = String(input.text ?? '').trim();
+  if (!title) throw new Error('Title is required.');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(date))) throw new Error('Date must be a valid YYYY-MM-DD.');
+  if (!text) throw new Error('Text is required.');
+  const prompt = String(input.prompt ?? '').trim();
+  return { title, date, text, ...(prompt ? { prompt } : {}) };
+}
+
+export function createDoc(input: DocInput): Doc {
+  const next = docs.reduce((max, d) => Math.max(max, Number(/\d+$/.exec(d.id)?.[0] ?? 0)), 0) + 1;
+  const doc: Doc = { id: `DOC-${String(next).padStart(2, '0')}`, ...validate(input) };
+  docs = [...docs, doc];
+  persist();
+  return doc;
+}
+
+export function updateDoc(id: string, input: DocInput): Doc {
+  const idx = docs.findIndex((d) => d.id === id);
+  if (idx < 0) throw new Error(`${id} not found.`);
+  const doc: Doc = { id, ...validate(input) };
+  docs = docs.map((d, i) => (i === idx ? doc : d));
+  persist();
+  return doc;
+}
+
+export function deleteDoc(id: string): void {
+  if (!docs.some((d) => d.id === id)) throw new Error(`${id} not found.`);
+  docs = docs.filter((d) => d.id !== id);
+  persist();
+}
+
+/** Sets sample questions on several documents with a single write. */
+export function setPrompts(prompts: Record<string, string>): void {
+  docs = docs.map((d) => (prompts[d.id]?.trim() ? { ...d, prompt: prompts[d.id].trim() } : d));
+  persist();
+}

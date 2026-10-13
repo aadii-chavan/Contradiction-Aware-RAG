@@ -1,4 +1,4 @@
-import type { AwareResult, BaselineResult, ConflictSource, QueryResult, RetrievedChunk } from '../src/types';
+import type { PromptSet, AwareResult, BaselineResult, ConflictSource, QueryResult, RetrievedChunk } from '../src/types';
 import { chat, type LlmConfig } from './llm';
 import { AWARE_SYSTEM, BASELINE_SYSTEM, userPrompt } from './prompts';
 import { retrieve } from './retriever';
@@ -14,8 +14,8 @@ async function timed<T>(fn: () => Promise<T>): Promise<[T, number]> {
   return [value, Math.round(performance.now() - start)];
 }
 
-async function runBaseline(cfg: LlmConfig, query: string, chunks: RetrievedChunk[]): Promise<BaselineResult> {
-  const [answer, latencyMs] = await timed(() => chat(cfg, BASELINE_SYSTEM, userPrompt(query, chunks)));
+async function runBaseline(cfg: LlmConfig, query: string, chunks: RetrievedChunk[], system: string): Promise<BaselineResult> {
+  const [answer, latencyMs] = await timed(() => chat(cfg, system, userPrompt(query, chunks)));
   const cites = [...new Set(answer.match(/DOC-\d+/g) ?? [])];
   return { answer, cites, latencyMs };
 }
@@ -57,8 +57,8 @@ function toSource(chunk: RetrievedChunk, value: string): ConflictSource | null {
   };
 }
 
-async function runAware(cfg: LlmConfig, query: string, chunks: RetrievedChunk[]): Promise<AwareResult> {
-  const [raw, latencyMs] = await timed(() => chat(cfg, AWARE_SYSTEM, userPrompt(query, chunks), { json: true }));
+async function runAware(cfg: LlmConfig, query: string, chunks: RetrievedChunk[], system: string): Promise<AwareResult> {
+  const [raw, latencyMs] = await timed(() => chat(cfg, system, userPrompt(query, chunks), { json: true }));
   const parsed = parseJson(raw);
   if (!parsed) {
     // Model ignored the JSON format; surface its text rather than failing the request.
@@ -84,9 +84,10 @@ async function runAware(cfg: LlmConfig, query: string, chunks: RetrievedChunk[])
   };
 }
 
-export async function runQuery(cfg: LlmConfig, query: string): Promise<QueryResult> {
+export async function runQuery(cfg: LlmConfig, query: string, prompts: Partial<PromptSet> = {}): Promise<QueryResult> {
   const chunks = retrieve(query);
   if (chunks.length === 0) throw new Error('No documents matched this query.');
-  const [baseline, aware] = await Promise.all([runBaseline(cfg, query, chunks), runAware(cfg, query, chunks)]);
+  const [baseline, aware] = await Promise.all([runBaseline(cfg, query, chunks, prompts.baseline?.trim() || BASELINE_SYSTEM),
+    runAware(cfg, query, chunks, prompts.aware?.trim() || AWARE_SYSTEM),]);
   return { query, chunks, baseline, aware };
 }

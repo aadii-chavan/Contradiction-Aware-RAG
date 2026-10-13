@@ -7,6 +7,22 @@ export interface RetrievedChunk {
   score: number;
 }
 
+export interface Doc {
+  id: string;
+  title: string;
+  date: string;
+  text: string;
+  /** A sample question this document answers, shown in the search tab. */
+  prompt?: string;
+}
+
+export type DocInput = Omit<Doc, 'id'>;
+
+export interface PromptSet {
+  baseline: string;
+  aware: string;
+}
+
 export interface ConflictSource {
   id: string;
   date: string;
@@ -62,6 +78,8 @@ export interface EvalRow {
   awareFlagged: boolean;
   baselineAttributed: boolean;
   awareAttributed: boolean;
+  baselineMs: number;
+  awareMs: number;
 }
 
 export interface EvalResult {
@@ -71,3 +89,15 @@ export interface EvalResult {
   aware: EvalSide;
   rows: EvalRow[];
 }
+
+export interface EvalProgress {
+  type: 'progress';
+  done: number;
+  total: number;
+  /** The query that just finished. */
+  query: string;
+  /** Metrics over the rows finished so far. */
+  result: EvalResult;
+}
+
+export type EvalEvent = EvalProgress | { type: 'done'; result: EvalResult } | { type: 'error'; error: string };

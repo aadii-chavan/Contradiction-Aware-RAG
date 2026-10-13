@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { runEvaluation } from '../api';
-import type { EvalResult } from '../types';
+import type { EvalProgress, EvalResult } from '../types';
 import Meter from './Meter';
 import styles from './Evaluation.module.css';
 
@@ -37,16 +37,25 @@ export default function Evaluation() {
   const [result, setResult] = useState<EvalResult | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState<{ done: number; total: number; query: string } | null>(null);
 
   const run = async () => {
     setRunning(true);
     setError(null);
+    setProgress({ done: 0, total: 0, query: '' });
     try {
-      setResult(await runEvaluation());
+      const final = await runEvaluation((event) => {
+        if (event.type !== 'progress') return;
+        const p: EvalProgress = event;
+        setProgress({ done: p.done, total: p.total, query: p.query });
+        setResult(p.result);
+      });
+      setResult(final);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
       setRunning(false);
+      setProgress(null);
     }
   };
 
@@ -56,23 +65,36 @@ export default function Evaluation() {
         <h2 className={styles.heading}>Evaluation</h2>
         <span className={styles.caption}>
           {result
-            ? `${result.conflictQueries + result.cleanQueries} queries · ${result.conflictQueries} seeded conflicts, ${result.cleanQueries} clean controls · Conflict-Aware vs Baseline`
+            ? `${progress?.total || result.conflictQueries + result.cleanQueries} queries · ${result.conflictQueries} seeded conflicts, ${result.cleanQueries} clean controls · Conflict-Aware vs Baseline`
             : 'Runs the labelled query set in server/evalSet.ts against both prompts'}
         </span>
         <button type="button" className={styles.run} onClick={run} disabled={running}>
           {running ? 'Running…' : result ? 'Re-run evaluation' : 'Run evaluation'}
         </button>
       </div>
+      {running && progress && (
+        <div className={styles.progress} role="status" aria-live="polite">
+          <div className={styles.progressTop}>
+            <span className={styles.progressCount}>
+              {progress.total ? `${progress.done} / ${progress.total}` : 'Starting…'}
+            </span>
+            <span className={styles.progressQuery} key={progress.query}>
+              {progress.done === 0 ? 'Retrieving and querying the model…' : `Done: ${progress.query}`}
+            </span>
+          </div>
+          <Meter value={progress.total ? progress.done / progress.total : 0} segments={progress.total || 30} size="sm" active />
+        </div>
+      )}
       {error && <div className={styles.error} role="alert">{error}</div>}
       <div className={styles.grid}>
         {toMetrics(result).map((metric, i) => (
-          <div key={metric.label} className={`${styles.card} ${i === 0 ? styles.cardLime : ''}`}>
+          <div key={metric.label} className={`${styles.card} ${i === 0 ? styles.cardLime : ''} ${running ? styles.cardRunning : ''}`}>
             <div className={styles.label}>{metric.label}</div>
             <div className={styles.values}>
               <span className={styles.value}>{metric.value}</span>
               <span className={styles.base}>baseline {metric.base}</span>
             </div>
-            <Meter value={metric.fill} />
+            <Meter value={metric.fill} active={running} />
           </div>
         ))}
       </div>

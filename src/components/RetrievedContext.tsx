@@ -38,6 +38,9 @@ export default function RetrievedContext({ result, showScoreBars }: RetrievedCon
             <div className={styles.chunkText}>
               {chunk.title} — {chunk.text}
             </div>
+            <a className={styles.edit} href={`#/documents/${chunk.id}`}>
+              Edit document
+            </a>
           </div>
         ))}
       </div>

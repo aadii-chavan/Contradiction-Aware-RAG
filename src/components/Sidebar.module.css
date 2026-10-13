@@ -62,3 +62,9 @@
     flex-direction: row;
   }
 }
+
+.active,
+.active:hover {
+  background: var(--lime);
+  color: var(--ink);
+}

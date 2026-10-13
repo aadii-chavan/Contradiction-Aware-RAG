@@ -112,3 +112,12 @@
     grid-template-columns: 1fr;
   }
 }
+
+.edit {
+  align-self: flex-start;
+  margin-top: auto;
+  font-size: 12px;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

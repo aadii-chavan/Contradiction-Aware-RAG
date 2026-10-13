@@ -12,12 +12,44 @@
 .meter span {
   flex: 1;
   border-radius: 999px;
+  border: 1.5px dashed transparent;
+  transition: background 0.35s ease, border-color 0.35s ease, transform 0.35s cubic-bezier(0.3, 1.6, 0.5, 1);
 }
 
 .on {
   background: var(--ink);
+  border-style: solid;
+  border-color: var(--ink);
 }
 
 .off {
-  border: 1.5px dashed rgba(21, 21, 19, 0.28);
+  border-color: rgba(21, 21, 19, 0.28);
+}
+
+.sm .off {
+  border-color: rgba(21, 21, 19, 0.45);
+}
+
+.next {
+  border-color: var(--ink);
+  animation: pulse 0.9s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    background: transparent;
+    transform: scaleY(1);
+  }
+  50% {
+    background: rgba(21, 21, 19, 0.35);
+    transform: scaleY(0.82);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .next {
+    animation: none;
+    background: rgba(21, 21, 19, 0.2);
+  }
 }
