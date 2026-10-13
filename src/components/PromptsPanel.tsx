@@ -14,14 +14,14 @@ interface PromptsPanelProps {
 }
 
 const TABS: { key: Tab; label: string }[] = [
+  { key: 'questions', label: 'Document questions' },
   { key: 'baseline', label: 'Baseline prompt' },
   { key: 'aware', label: 'Conflict-aware prompt' },
-  { key: 'questions', label: 'Document questions' },
 ];
 
 export default function PromptsPanel({ defaults, prompts, onChange, onPickQuestion }: PromptsPanelProps) {
-  const [open, setOpen] = useState(false);
-  const [tab, setTab] = useState<Tab>('baseline');
+  const [open, setOpen] = useState(true);
+  const [tab, setTab] = useState<Tab>('questions');
   const [docs, setDocs] = useState<Doc[]>([]);
   const [search, setSearch] = useState('');
 

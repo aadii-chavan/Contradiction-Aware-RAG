@@ -5,54 +5,6 @@
   scroll-margin-top: 16px;
 }
 
-.presets {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-
-.presetsLabel {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-right: 6px;
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 0;
-  background: var(--surface);
-  color: var(--ink);
-  font-size: 15px;
-  padding: 14px 24px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.chip:hover {
-  background: #fafafa;
-}
-
-.chipActive,
-.chipActive:hover {
-  background: var(--ink);
-  color: #fff;
-}
-
-.chipDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #b9bbb7;
-}
-
-.chipDotConflict {
-  background: var(--lime-strong);
-}
-
 .row {
   display: flex;
   gap: 12px;
@@ -114,4 +66,9 @@
   .run {
     height: 52px;
   }
+}
+
+.run:disabled {
+  opacity: 0.5;
+  cursor: default;
 }

@@ -1,0 +1,157 @@
+.card {
+  --baseline: #2a78d6;
+  --aware: #7a8c00;
+  background: var(--card);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: rise 0.3s ease-out;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 20px;
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avg {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.baseline {
+  background: var(--baseline);
+}
+
+.aware {
+  background: var(--aware);
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.plot {
+  position: relative;
+  min-width: 620px;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.grid {
+  stroke: rgba(21, 21, 19, 0.1);
+  stroke-width: 1;
+}
+
+.axis {
+  stroke: rgba(21, 21, 19, 0.35);
+  stroke-width: 1;
+}
+
+.tick {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--text-muted);
+}
+
+.baselineBar {
+  fill: var(--baseline);
+}
+
+.awareBar {
+  fill: var(--aware);
+}
+
+.tooltip {
+  position: absolute;
+  top: 8px;
+  pointer-events: none;
+  background: var(--surface);
+  border: 1px solid var(--card-line);
+  border-radius: var(--radius-md);
+  box-shadow: 0 6px 20px rgba(21, 21, 19, 0.12);
+  padding: 10px 14px;
+  max-width: 280px;
+  font-size: 12.5px;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tipQuery {
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.tipRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tipRow b {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  padding-left: 12px;
+}
+
+.axisLabel {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}

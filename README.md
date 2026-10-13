@@ -44,8 +44,8 @@ npm run preview   # serve the production build (API included)
 ## Using the app
 
 **Search tab**
-- Pick a preset or type a question, then press **Run both**. Both prompts run on the same top-4 retrieved chunks, with their latencies shown.
-- Open **Prompts & documents** to edit the baseline and conflict-aware system prompts (saved in your browser, with a reset button), or to pick a ready-made question for any document.
+- Pick a document question from the **Prompts & documents** panel or type your own, then press **Run both**. Both prompts run on the same top-4 retrieved chunks, with their latencies shown.
+- The same panel has tabs for editing the baseline and conflict-aware system prompts (saved in your browser, with a reset button).
 - Keep the JSON response format in the conflict-aware prompt, or the conflict banner and source cards will not render.
 - Each retrieved chunk has an **Edit document** link.
 

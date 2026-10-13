@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { PRESETS, type PresetKey } from './data/presets';
 import { fetchDefaultPrompts, fetchInfo, runQuery } from './api';
 import type { PromptSet, QueryResult, ServerInfo } from './types';
 import Sidebar from './components/Sidebar';
@@ -13,7 +12,6 @@ import Evaluation from './components/Evaluation';
 import styles from './App.module.css';
 
 interface AppProps {
-  defaultPreset?: PresetKey;
   bannerStyle?: BannerStyle;
   showScoreBars?: boolean;
 }
@@ -32,12 +30,10 @@ function loadSavedPrompts(defaults: PromptSet): PromptSet {
 const pageFromHash = () => (window.location.hash.startsWith('#/documents') ? 'documents' : 'dashboard');
 
 export default function App({
-  defaultPreset = 'direct',
   bannerStyle = 'solid',
   showScoreBars = true,
 }: AppProps) {
-  const [presetKey, setPresetKey] = useState<PresetKey>(defaultPreset);
-  const [query, setQuery] = useState(PRESETS[defaultPreset].query);
+  const [query, setQuery] = useState('');
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<QueryResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -81,11 +77,6 @@ export default function App({
     if (page === 'dashboard' && id && !id.startsWith('/')) document.getElementById(id)?.scrollIntoView();
   }, [page]);
 
-  const selectPreset = (key: PresetKey) => {
-    setPresetKey(key);
-    setQuery(PRESETS[key].query);
-  };
-
   const run = async () => {
     if (!query.trim()) return;
     const id = ++requestId.current;
@@ -115,8 +106,6 @@ export default function App({
         onQueryChange={setQuery}
         onRun={run}
         running={running}
-        activePreset={presetKey}
-        onSelectPreset={selectPreset}
       />
       <PromptsPanel defaults={defaults} prompts={prompts} onChange={changePrompts} onPickQuestion={setQuery} />
       {info && !info.llmConfigured && (

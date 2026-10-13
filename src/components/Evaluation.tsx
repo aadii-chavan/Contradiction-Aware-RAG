@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { runEvaluation } from '../api';
 import type { EvalProgress, EvalResult, EvalRow } from '../types';
+import LatencyChart from './LatencyChart';
 import Meter from './Meter';
 import styles from './Evaluation.module.css';
 
@@ -186,6 +187,7 @@ export default function Evaluation() {
           </div>
         ))}
       </div>
+      {result && result.rows.length > 0 && <LatencyChart rows={result.rows} />}
       {result && result.rows.length > 0 && <ResultsTable rows={result.rows} running={running} />}
     </section>
   );

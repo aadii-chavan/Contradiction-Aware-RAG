@@ -1,4 +1,3 @@
-import { PRESETS, PRESET_KEYS, type PresetKey } from '../data/presets';
 import styles from './QueryBar.module.css';
 
 interface QueryBarProps {
@@ -6,8 +5,6 @@ interface QueryBarProps {
   onQueryChange: (query: string) => void;
   onRun: () => void;
   running: boolean;
-  activePreset: PresetKey;
-  onSelectPreset: (key: PresetKey) => void;
 }
 
 export default function QueryBar({
@@ -15,30 +12,9 @@ export default function QueryBar({
   onQueryChange,
   onRun,
   running,
-  activePreset,
-  onSelectPreset,
 }: QueryBarProps) {
   return (
     <section id="query" className={styles.section}>
-      <div className={styles.presets}>
-        <div className={styles.presetsLabel}>Presets</div>
-        {PRESET_KEYS.map((key) => {
-          const preset = PRESETS[key];
-          const active = key === activePreset;
-          return (
-            <button
-              key={key}
-              type="button"
-              className={`${styles.chip} ${active ? styles.chipActive : ''}`}
-              aria-pressed={active}
-              onClick={() => onSelectPreset(key)}
-            >
-              <span className={`${styles.chipDot} ${preset.conflict ? styles.chipDotConflict : ''}`} />
-              {preset.label}
-            </button>
-          );
-        })}
-      </div>
       <form
         className={styles.row}
         onSubmit={(e) => {
@@ -55,7 +31,7 @@ export default function QueryBar({
             placeholder="Ask a question about the corpus"
           />
         </label>
-        <button type="submit" className={styles.run}>
+        <button type="submit" className={styles.run} disabled={running || !query.trim()}>
           {running ? 'Running…' : 'Run both ▸'}
         </button>
       </form>
