@@ -69,7 +69,7 @@ export default function App({
       />
       {info && !info.llmConfigured && (
         <div className={styles.notice}>
-          LLM not configured. Copy <code>.env.example</code> to <code>.env</code>, set LLM_API_KEY and LLM_MODEL, then
+          LLM not configured. Set GEMINI_API_KEY in <code>.env</code>, then
           restart <code>npm run dev</code>.
         </div>
       )}

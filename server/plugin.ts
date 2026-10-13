@@ -2,7 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { loadEnv, type Plugin } from 'vite';
 import { CORPUS } from './corpus';
 import { runEvaluation } from './evaluate';
-import { llmConfigFromEnv, type LlmConfig } from './llm';
+import { isConfigured, llmConfigFromEnv, type LlmConfig } from './llm';
 import { runQuery } from './pipeline';
 import { RETRIEVER_NAME, TOP_K } from './retriever';
 import type { ServerInfo } from '../src/types';
@@ -29,10 +29,10 @@ function makeHandler(cfg: LlmConfig) {
       if (req.method === 'GET' && path === '/api/info') {
         const info: ServerInfo = {
           retriever: RETRIEVER_NAME,
-          model: cfg.model || 'not set',
+          model: cfg.model,
           k: TOP_K,
           documents: CORPUS.length,
-          llmConfigured: Boolean(cfg.model && (cfg.apiKey || !cfg.baseUrl.includes('api.openai.com'))),
+          llmConfigured: isConfigured(cfg),
         };
         return send(res, 200, info);
       }

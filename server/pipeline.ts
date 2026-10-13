@@ -58,7 +58,7 @@ function toSource(chunk: RetrievedChunk, value: string): ConflictSource | null {
 }
 
 async function runAware(cfg: LlmConfig, query: string, chunks: RetrievedChunk[]): Promise<AwareResult> {
-  const [raw, latencyMs] = await timed(() => chat(cfg, AWARE_SYSTEM, userPrompt(query, chunks)));
+  const [raw, latencyMs] = await timed(() => chat(cfg, AWARE_SYSTEM, userPrompt(query, chunks), { json: true }));
   const parsed = parseJson(raw);
   if (!parsed) {
     // Model ignored the JSON format; surface its text rather than failing the request.
