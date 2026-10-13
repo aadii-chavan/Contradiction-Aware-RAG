@@ -17,11 +17,11 @@ Respond with a single JSON object and nothing else:
 {
   "conflict": boolean,
   "conflict_type": "direct" | "temporal" | null,
-  "conflicting": [{"id": "DOC-XX", "value": "<exact text span copied from that document>"}, {"id": "DOC-YY", "value": "<exact text span>"}],
+  "conflicting": [{"id": "DOC-XX", "value": "<shortest exact span that carries the disagreeing value>"}, {"id": "DOC-YY", "value": "<exact text span>"}],
   "answer": "<2-4 sentence answer>"
 }
 Rules:
-- "conflicting" holds the two disagreeing documents (empty array if no conflict). Each "value" must be copied verbatim from that document.
+- "conflicting" holds the two disagreeing documents (empty array if no conflict). Each "value" must be copied verbatim from that document and be as short as possible: just the conflicting number or term (e.g. "3e-4", "BatchNorm"), never a whole sentence.
 - If there is a conflict, the answer must state that the sources disagree, give each value with its document ID, and note any evidence about which is more reliable (newer date, more specific scope). Do not silently pick one.
 - If there is no conflict, answer directly and cite document IDs in square brackets.`;
 
