@@ -180,3 +180,161 @@
     animation: none;
   }
 }
+
+.tableCard {
+  background: var(--card);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: rise 0.3s ease-out;
+}
+
+.tableHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+}
+
+.tableTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.filter {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.tableScroll {
+  overflow-x: auto;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 860px;
+}
+
+.table th {
+  text-align: left;
+  font-size: 11.5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  padding: 14px 14px 10px;
+}
+
+.table td {
+  padding: 11px 14px;
+  border-top: 1px solid var(--card-line);
+  vertical-align: top;
+}
+
+.fresh td {
+  animation: flash 1.2s ease-out;
+}
+
+@keyframes flash {
+  from {
+    background: var(--lime);
+  }
+}
+
+.num {
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.idx {
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.queryCell {
+  min-width: 260px;
+  line-height: 1.45;
+}
+
+.ids,
+.muted {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--text-faint);
+}
+
+.tag,
+.tagOn {
+  display: inline-block;
+  font-size: 12px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: var(--card);
+  color: var(--text-muted);
+}
+
+.tagOn {
+  background: var(--lime);
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.sub {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.pass,
+.fail {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 12px;
+  border-radius: 999px;
+}
+
+.pass {
+  background: var(--ink);
+  color: #fff;
+}
+
+.fail {
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-line);
+  color: var(--danger-ink);
+}
+
+.emptyRow {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 20px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tableCard,
+  .fresh td {
+    animation: none;
+  }
+}

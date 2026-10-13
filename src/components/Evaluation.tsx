@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { runEvaluation } from '../api';
-import type { EvalProgress, EvalResult } from '../types';
+import type { EvalProgress, EvalResult, EvalRow } from '../types';
 import Meter from './Meter';
 import styles from './Evaluation.module.css';
 
@@ -31,6 +31,94 @@ function toMetrics(r: EvalResult | null): Metric[] {
     { label: 'Attribution Accuracy', value: pct(r.aware.attributed, c), base: pct(r.baseline.attributed, c), fill: r.aware.attributed / (c || 1) },
     { label: 'Avg Latency', value: sec(r.aware.avgLatencyMs), base: sec(r.baseline.avgLatencyMs), fill: r.aware.avgLatencyMs / (Math.max(r.aware.avgLatencyMs, r.baseline.avgLatencyMs) || 1) },
   ];
+}
+
+const seconds = (ms: number) => `${(ms / 1000).toFixed(2)} s`;
+
+/** Conflict-aware pass: flags exactly when a conflict is seeded, and names the right pair. */
+const awarePassed = (r: EvalRow) => r.awareFlagged === r.expectConflict && (!r.expectConflict || r.awareAttributed);
+
+function ResultsTable({ rows, running }: { rows: EvalRow[]; running: boolean }) {
+  const [failuresOnly, setFailuresOnly] = useState(false);
+  const failures = rows.filter((r) => !awarePassed(r)).length;
+  const shown = rows.map((r, i) => ({ r, i })).filter(({ r }) => !failuresOnly || !awarePassed(r));
+
+  return (
+    <div className={styles.tableCard}>
+      <div className={styles.tableHead}>
+        <h3 className={styles.tableTitle}>Per-query results</h3>
+        <span className={styles.caption}>
+          {rows.length} {rows.length === 1 ? 'query' : 'queries'} · conflict-aware failures: {failures}
+        </span>
+        <label className={styles.filter}>
+          <input type="checkbox" checked={failuresOnly} onChange={(e) => setFailuresOnly(e.target.checked)} />
+          Failures only
+        </label>
+      </div>
+      <div className={styles.tableScroll}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Query</th>
+              <th>Expected</th>
+              <th>Baseline</th>
+              <th>Conflict-aware</th>
+              <th className={styles.num}>Latency (A / B)</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            {shown.map(({ r, i }) => {
+              const pass = awarePassed(r);
+              return (
+                <tr key={r.query} className={running && i === rows.length - 1 ? styles.fresh : undefined}>
+                  <td className={styles.idx}>{i + 1}</td>
+                  <td className={styles.queryCell}>{r.query}</td>
+                  <td>
+                    {r.expectConflict ? (
+                      <span className={styles.ids}>{r.expectedIds.join(' ↔ ')}</span>
+                    ) : (
+                      <span className={styles.muted}>clean</span>
+                    )}
+                  </td>
+                  <td>
+                    <span className={r.baselineFlagged ? styles.tagOn : styles.tag}>
+                      {r.baselineFlagged ? 'Flagged' : 'Not flagged'}
+                    </span>
+                    {r.expectConflict && (
+                      <span className={styles.sub}>{r.baselineAttributed ? 'names both' : 'misses a source'}</span>
+                    )}
+                  </td>
+                  <td>
+                    <span className={r.awareFlagged ? styles.tagOn : styles.tag}>
+                      {r.awareFlagged ? 'Flagged' : 'Not flagged'}
+                    </span>
+                    {r.expectConflict && (
+                      <span className={styles.sub}>{r.awareAttributed ? 'right pair' : 'wrong pair'}</span>
+                    )}
+                  </td>
+                  <td className={styles.num}>
+                    {seconds(r.baselineMs)} / {seconds(r.awareMs)}
+                  </td>
+                  <td>
+                    <span className={pass ? styles.pass : styles.fail}>{pass ? 'Pass' : 'Fail'}</span>
+                  </td>
+                </tr>
+              );
+            })}
+            {shown.length === 0 && (
+              <tr>
+                <td colSpan={7} className={styles.emptyRow}>
+                  No failures.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }
 
 export default function Evaluation() {
@@ -98,6 +186,7 @@ export default function Evaluation() {
           </div>
         ))}
       </div>
+      {result && result.rows.length > 0 && <ResultsTable rows={result.rows} running={running} />}
     </section>
   );
 }
