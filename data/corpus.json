@@ -10,15 +10,14 @@
     "id": "DOC-02",
     "title": "Pipeline config v1",
     "date": "2023-09-14",
-    "text": "ResNet-50 pipeline configuration. Each conv block is followed by BatchNorm (momentum 0.1). Epsilon is 1e-5 and running statistics are frozen at evaluation time. Training uses SGD with momentum 0.9.",
-    "prompt": "What is the momentum used for SGD in the ResNet-50 pipeline configuration?"
+    "text": "ResNet-50 pipeline configuration. Each conv block is followed by BatchNorm (momentum 0.1). Epsilon is 1e-5 and running statistics are frozen at evaluation time. Training uses SGD with momentum 0.9."
   },
   {
     "id": "DOC-03",
     "title": "Seq2seq baseline config",
     "date": "2023-11-02",
     "text": "The seq2seq transformer baseline uses inverse square-root learning rate decay after warmup. Dropout is 0.1 and the model has six encoder and six decoder layers.",
-    "prompt": "What is the dropout rate for the seq2seq transformer baseline?"
+    "prompt": "How many encoder layers does the seq2seq transformer baseline have?"
   },
   {
     "id": "DOC-04",
@@ -53,7 +52,7 @@
     "title": "Evaluation protocol",
     "date": "2023-10-05",
     "text": "Evaluation uses a single centre crop at 224 px and reports top-1 accuracy. No test-time augmentation is applied. Each result is averaged over three seeds.",
-    "prompt": "How many seeds are results averaged over during evaluation?"
+    "prompt": "What evaluation metric is reported for evaluation?"
   },
   {
     "id": "DOC-09",
@@ -74,7 +73,7 @@
     "title": "Pipeline changelog",
     "date": "2025-02-03",
     "text": "ResNet-50 pipeline changelog. Switched normalization to GroupNorm (32 groups) at batch size 8 per GPU, because BatchNorm statistics were noisy at small batch sizes.",
-    "prompt": "What normalization method replaced BatchNorm in the ResNet-50 pipeline due to noisy statistics at small batch sizes?"
+    "prompt": "What normalization method replaced BatchNorm in the ResNet-50 pipeline changelog?"
   },
   {
     "id": "DOC-12",
@@ -109,7 +108,7 @@
     "title": "Seed policy memo",
     "date": "2024-09-12",
     "text": "Seed policy memo. After the collision audit the default random seed is 1337 for all experiments; seed 42 is retired.",
-    "prompt": "What is the new default random seed for all experiments after the collision audit?"
+    "prompt": "What is the new default random seed for all experiments?"
   },
   {
     "id": "DOC-17",
@@ -151,14 +150,14 @@
     "title": "Tokenizer v2 release notes",
     "date": "2024-11-08",
     "text": "Tokenizer v2 release notes. The SentencePiece vocabulary was expanded to 50,000 pieces to cover code and scientific notation.",
-    "prompt": "What is the expanded vocabulary size of the SentencePiece tokenizer in Tokenizer v2?"
+    "prompt": "What is the expanded vocabulary size of Tokenizer v2?"
   },
   {
     "id": "DOC-23",
     "title": "ASR training plan",
     "date": "2024-03-03",
     "text": "ASR training plan. The speech recognition model is trained for 60 epochs with SpecAugment enabled.",
-    "prompt": "How many epochs is the speech recognition model trained for with SpecAugment enabled?"
+    "prompt": "How many epochs is the speech recognition model trained for in the ASR training plan?"
   },
   {
     "id": "DOC-24",
@@ -172,14 +171,14 @@
     "title": "Augmentation policy",
     "date": "2024-01-09",
     "text": "Augmentation policy. RandAugment is applied with 2 operations at magnitude 9 for all image classification runs.",
-    "prompt": "How many operations and at what magnitude is RandAugment applied for image classification runs?"
+    "prompt": "How many operations are applied with RandAugment for image classification runs?"
   },
   {
     "id": "DOC-26",
     "title": "Augmentation tuning",
     "date": "2024-12-02",
     "text": "Augmentation tuning. A sweep found RandAugment magnitude 15 with 2 operations gives the best robustness.",
-    "prompt": "What RandAugment magnitude with 2 operations gives the best robustness?"
+    "prompt": "What RandAugment magnitude gives the best robustness?"
   },
   {
     "id": "DOC-27",
@@ -200,14 +199,14 @@
     "title": "GAN training notes",
     "date": "2024-02-26",
     "text": "GAN training notes. The discriminator is updated 5 times for every generator update, following the original recipe.",
-    "prompt": "How many times is the discriminator updated for every generator update in GAN training notes?"
+    "prompt": "How many times is the discriminator updated for every generator update in GAN training?"
   },
   {
     "id": "DOC-30",
     "title": "GAN stability study",
     "date": "2024-08-23",
     "text": "GAN stability study. We found one discriminator update per generator update was most stable, replacing the earlier 5:1 ratio.",
-    "prompt": "What discriminator to generator update ratio was found to be most stable in the GAN stability study?"
+    "prompt": "What was found to be the most stable ratio of discriminator updates per generator update in the GAN stability study?"
   },
   {
     "id": "DOC-31",
@@ -228,14 +227,14 @@
     "title": "Dataset licensing",
     "date": "2024-04-08",
     "text": "Dataset licensing. The satellite imagery dataset is released under the CC BY 4.0 license, allowing commercial reuse with attribution.",
-    "prompt": "Under what license is the satellite imagery dataset released?"
+    "prompt": "What is the license for the satellite imagery dataset?"
   },
   {
     "id": "DOC-34",
     "title": "Legal review",
     "date": "2024-09-30",
     "text": "Legal review. The satellite imagery dataset is restricted to non-commercial use under CC BY-NC 4.0 because of the provider terms.",
-    "prompt": "What is the license for the satellite imagery dataset after legal review?"
+    "prompt": "Under what license is the satellite imagery dataset restricted to non-commercial use?"
   },
   {
     "id": "DOC-35",
@@ -249,7 +248,7 @@
     "title": "Sentiment dataset errata",
     "date": "2024-05-14",
     "text": "Sentiment dataset errata. After deduplication the sentiment validation set contains 8,000 reviews; the earlier count was wrong.",
-    "prompt": "How many reviews are in the sentiment validation set after deduplication?"
+    "prompt": "How many reviews does the sentiment validation set contain after deduplication?"
   },
   {
     "id": "DOC-37",
@@ -291,21 +290,21 @@
     "title": "Captioning evaluation",
     "date": "2024-06-17",
     "text": "Captioning evaluation. Image captioning decoding uses a beam size of 10, which raised CIDEr noticeably.",
-    "prompt": "What beam size is used for image captioning decoding that raised CIDEr?"
+    "prompt": "What beam size for image captioning decoding raised CIDEr noticeably?"
   },
   {
     "id": "DOC-43",
     "title": "DQN agent config",
     "date": "2024-01-30",
     "text": "DQN agent config. The DQN agent stores experience in a replay buffer of 100,000 transitions.",
-    "prompt": "What is the capacity of the replay buffer for the DQN agent?"
+    "prompt": "What is the size of the replay buffer for the DQN agent?"
   },
   {
     "id": "DOC-44",
     "title": "DQN scaling notes",
     "date": "2024-11-25",
     "text": "DQN scaling notes. The DQN agent replay buffer was enlarged to 1,000,000 transitions to stabilise learning.",
-    "prompt": "What was the enlarged capacity of the DQN agent replay buffer?"
+    "prompt": "What was the enlarged size of the DQN agent replay buffer?"
   },
   {
     "id": "DOC-45",
@@ -333,21 +332,21 @@
     "title": "Code review policy",
     "date": "2024-04-02",
     "text": "Code review policy. Every pull request needs two approvals from lab members before it can be merged.",
-    "prompt": "How many approvals are needed for a pull request to be merged?"
+    "prompt": "How many approvals from lab members are needed for a pull request to be merged?"
   },
   {
     "id": "DOC-49",
     "title": "Backup schedule",
     "date": "2024-05-20",
     "text": "Backup schedule. All datasets are backed up nightly at 02:00 to cold storage and retained for 90 days.",
-    "prompt": "How often are all datasets backed up?"
+    "prompt": "How long are datasets retained in cold storage after nightly backups?"
   },
   {
     "id": "DOC-50",
     "title": "Onboarding checklist",
     "date": "2024-06-11",
     "text": "Onboarding checklist. New members receive cluster access only after completing the security training and signing the data-use agreement.",
-    "prompt": "What steps must new members complete to receive cluster access?"
+    "prompt": "What must new members complete before receiving cluster access?"
   },
   {
     "id": "DOC-51",
