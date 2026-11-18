@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { runEvaluation } from '../api';
-import type { EvalProgress, EvalResult, EvalRow } from '../types';
+import { RETRIEVER_LABELS, type EvalProgress, type EvalResult, type EvalRow, type RetrieverMode } from '../types';
+import RetrieverToggle from './RetrieverToggle';
 import LatencyChart from './LatencyChart';
 import Meter from './Meter';
 import styles from './Evaluation.module.css';
@@ -122,7 +123,8 @@ function ResultsTable({ rows, running }: { rows: EvalRow[]; running: boolean }) 
   );
 }
 
-export default function Evaluation() {
+export default function Evaluation({ pythonReady }: { pythonReady: boolean }) {
+  const [retriever, setRetriever] = useState<RetrieverMode>('tfidf');
   const [result, setResult] = useState<EvalResult | null>(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -138,7 +140,7 @@ export default function Evaluation() {
         const p: EvalProgress = event;
         setProgress({ done: p.done, total: p.total, query: p.query });
         setResult(p.result);
-      });
+      }, retriever);
       setResult(final);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -154,10 +156,13 @@ export default function Evaluation() {
         <h2 className={styles.heading}>Evaluation</h2>
         <span className={styles.caption}>
           {result
-            ? `${progress?.total || result.conflictQueries + result.cleanQueries} queries · ${result.conflictQueries} seeded conflicts, ${result.cleanQueries} clean controls · Conflict-Aware vs Baseline`
+            ? `${progress?.total || result.conflictQueries + result.cleanQueries} queries · ${result.conflictQueries} seeded conflicts, ${result.cleanQueries} clean controls · Conflict-Aware vs Baseline · ${RETRIEVER_LABELS[result.retriever ?? 'tfidf']} retrieval`
             : 'Runs the labelled query set in server/evalSet.ts against both prompts'}
         </span>
-        <button type="button" className={styles.run} onClick={run} disabled={running}>
+        <span className={styles.toggle}>
+          <RetrieverToggle value={retriever} onChange={setRetriever} pythonReady={pythonReady} disabled={running} />
+        </span>
+        <button type="button" className={styles.runInline} onClick={run} disabled={running}>
           {running ? 'Running…' : result ? 'Re-run evaluation' : 'Run evaluation'}
         </button>
       </div>

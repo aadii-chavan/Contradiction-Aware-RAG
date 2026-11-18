@@ -121,3 +121,9 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+.signals {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}

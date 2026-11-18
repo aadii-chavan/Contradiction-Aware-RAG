@@ -3,7 +3,8 @@ import { loadEnv, type Plugin } from 'vite';
 import { createDoc, deleteDoc, getDocs, updateDoc, type DocInput } from './corpus';
 import { EVAL_TOTAL, runEvaluation, summarize } from './evaluate';
 import { isConfigured, llmConfigFromEnv, type LlmConfig } from './llm';
-import { runQuery } from './pipeline';
+import { isRetrieverMode, runQuery } from './pipeline';
+import { pyHealth } from './pyBackend';
 import { generateQuestions } from './promptGen';
 import { DEFAULT_PROMPTS } from './prompts';
 import { RETRIEVER_NAME, TOP_K } from './retriever';
@@ -29,8 +30,15 @@ function makeHandler(cfg: LlmConfig) {
     const path = (req.url ?? '').split('?')[0];
     try {
       if (req.method === 'GET' && path === '/api/info') {
+        const py = await pyHealth();
         const info: ServerInfo = {
           retriever: RETRIEVER_NAME,
+          python: py && {
+            embeddingModel: py.embeddingModel,
+            vectorStore: py.vectorStore,
+            reranker: py.reranker,
+            ready: py.status.vector === 'ready',
+          },
           model: cfg.model,
           k: TOP_K,
           documents: getDocs().length,
@@ -54,19 +62,22 @@ function makeHandler(cfg: LlmConfig) {
         }
       }
       if (req.method === 'POST' && path === '/api/query') {
-        const { query, prompts } = await readJson(req);
+        const { query, prompts, retriever } = await readJson(req);
         if (typeof query !== 'string' || !query.trim()) return send(res, 400, { error: 'Query is required.' });
-        return send(res, 200, await runQuery(cfg, query.trim(), (prompts ?? {}) as Partial<PromptSet>));
+        const mode = isRetrieverMode(retriever) ? retriever : 'tfidf';
+        return send(res, 200, await runQuery(cfg, query.trim(), (prompts ?? {}) as Partial<PromptSet>, mode));
       }
       if (req.method === 'POST' && path === '/api/eval') {
+        const { retriever } = await readJson(req);
+        const mode = isRetrieverMode(retriever) ? retriever : 'tfidf';
         // Stream newline-delimited JSON so the UI can show live progress.
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/x-ndjson');
         res.setHeader('Cache-Control', 'no-cache');
         const emit = (event: EvalEvent) => res.write(JSON.stringify(event) + '\n');
         try {
-          const result = await runEvaluation(cfg, (rows, query) =>
-            emit({ type: 'progress', done: rows.length, total: EVAL_TOTAL, query, result: summarize(rows) }),
+          const result = await runEvaluation(cfg, mode, (rows, query) =>
+            emit({ type: 'progress', done: rows.length, total: EVAL_TOTAL, query, result: summarize(rows, mode) }),
           );
           emit({ type: 'done', result });
         } catch (err) {
@@ -88,7 +99,9 @@ export function ragApi(): Plugin {
   return {
     name: 'rag-api',
     config(_, { mode }) {
-      cfg = llmConfigFromEnv(loadEnv(mode, process.cwd(), ''));
+      const env = loadEnv(mode, process.cwd(), '');
+      cfg = llmConfigFromEnv(env);
+      if (env.PY_BACKEND_URL) process.env.PY_BACKEND_URL = env.PY_BACKEND_URL;
     },
     configureServer(server) {
       server.middlewares.use(makeHandler(cfg));

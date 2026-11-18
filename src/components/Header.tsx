@@ -18,8 +18,17 @@ export default function Header({ info }: { info: ServerInfo | null }) {
       </div>
       <div className={styles.meta}>
         <div className={styles.config}>
-          {info ? `retriever: ${info.retriever} · k=${info.k} · llm: ${info.model}` : 'server unavailable'}
+          {info
+            ? `retrievers: ${info.retriever}${info.python ? ' · vector · hybrid' : ''} · k=${info.k} · llm: ${info.model}`
+            : 'server unavailable'}
         </div>
+        {info && (
+          <div className={styles.config} title="Python FastAPI backend: LangChain, ChromaDB and LangGraph">
+            {info.python
+              ? `python: ${info.python.vectorStore} · ${info.python.embeddingModel} · rerank ${info.python.reranker}${info.python.ready ? '' : ' · indexing…'}`
+              : 'python backend offline · vector, hybrid & agent unavailable'}
+          </div>
+        )}
         <div className={styles.status}>
           <div className={styles.statusDot} />
           {info ? `${info.documents} documents indexed` : 'offline'}

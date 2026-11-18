@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { fetchDefaultPrompts, fetchInfo, runQuery } from './api';
-import type { PromptSet, QueryResult, ServerInfo } from './types';
-import Sidebar from './components/Sidebar';
+import type { PromptSet, QueryResult, RetrieverMode, ServerInfo } from './types';
+import Sidebar, { type Page } from './components/Sidebar';
+import RetrieverToggle from './components/RetrieverToggle';
+import RetrievalLab from './components/RetrievalLab';
+import AgentWorkflow from './components/AgentWorkflow';
 import Header from './components/Header';
 import PromptsPanel from './components/PromptsPanel';
 import QueryBar from './components/QueryBar';
@@ -17,6 +20,16 @@ interface AppProps {
 }
 
 const PROMPTS_KEY = 'rag.prompts';
+const RETRIEVER_KEY = 'rag.retriever';
+
+function loadRetriever(): RetrieverMode {
+  try {
+    const saved = localStorage.getItem(RETRIEVER_KEY);
+    return saved === 'vector' || saved === 'hybrid' ? saved : 'tfidf';
+  } catch {
+    return 'tfidf';
+  }
+}
 
 function loadSavedPrompts(defaults: PromptSet): PromptSet {
   try {
@@ -27,7 +40,13 @@ function loadSavedPrompts(defaults: PromptSet): PromptSet {
   }
 }
 
-const pageFromHash = () => (window.location.hash.startsWith('#/documents') ? 'documents' : 'dashboard');
+function pageFromHash(): Page {
+  const hash = window.location.hash;
+  if (hash.startsWith('#/documents')) return 'documents';
+  if (hash.startsWith('#/retrieval')) return 'retrieval';
+  if (hash.startsWith('#/agent')) return 'agent';
+  return 'dashboard';
+}
 
 export default function App({
   bannerStyle = 'solid',
@@ -40,7 +59,8 @@ export default function App({
   const [info, setInfo] = useState<ServerInfo | null>(null);
   const [defaults, setDefaults] = useState<PromptSet | null>(null);
   const [prompts, setPrompts] = useState<PromptSet | null>(null);
-  const [page, setPage] = useState<'dashboard' | 'documents'>(pageFromHash);
+  const [page, setPage] = useState<Page>(pageFromHash);
+  const [retriever, setRetriever] = useState<RetrieverMode>(loadRetriever);
   // Guards against an older in-flight request overwriting a newer one.
   const requestId = useRef(0);
 
@@ -65,6 +85,15 @@ export default function App({
     }
   };
 
+  const changeRetriever = (next: RetrieverMode) => {
+    setRetriever(next);
+    try {
+      localStorage.setItem(RETRIEVER_KEY, next);
+    } catch {
+      // Storage unavailable; the choice still applies for this session.
+    }
+  };
+
   useEffect(() => {
     const onHash = () => setPage(pageFromHash());
     window.addEventListener('hashchange', onHash);
@@ -83,7 +112,7 @@ export default function App({
     setRunning(true);
     setError(null);
     try {
-      const next = await runQuery(query, prompts ?? undefined);
+      const next = await runQuery(query, prompts ?? undefined, retriever);
       if (id === requestId.current) setResult(next);
     } catch (err) {
       if (id === requestId.current) setError(err instanceof Error ? err.message : String(err));
@@ -98,6 +127,10 @@ export default function App({
       <main className={styles.page}>
       {page === 'documents' ? (
         <DocumentsPage onChanged={refreshInfo} />
+      ) : page === 'retrieval' ? (
+        <RetrievalLab info={info} />
+      ) : page === 'agent' ? (
+        <AgentWorkflow info={info} />
       ) : (
         <>
       <Header info={info} />
@@ -106,7 +139,16 @@ export default function App({
         onQueryChange={setQuery}
         onRun={run}
         running={running}
-      />
+      >
+        <RetrieverToggle value={retriever} onChange={changeRetriever} pythonReady={Boolean(info?.python)} disabled={running} />
+        <span className={styles.hint}>
+          {retriever === 'tfidf'
+            ? 'Keyword TF-IDF, in-process'
+            : retriever === 'vector'
+              ? 'Gemini embeddings in ChromaDB (Python backend)'
+              : 'TF-IDF + vector fusion with cross-encoder rerank (Python backend)'}
+        </span>
+      </QueryBar>
       <PromptsPanel defaults={defaults} prompts={prompts} onChange={changePrompts} onPickQuestion={setQuery} />
       {info && !info.llmConfigured && (
         <div className={styles.notice}>
@@ -117,7 +159,7 @@ export default function App({
       {error && <div className={styles.error} role="alert">{error}</div>}
       <AnswerPanels result={result} bannerStyle={bannerStyle} loading={running} />
       <RetrievedContext result={result} showScoreBars={showScoreBars} />
-      <Evaluation />
+      <Evaluation pythonReady={Boolean(info?.python)} />
         </>
       )}
       </main>

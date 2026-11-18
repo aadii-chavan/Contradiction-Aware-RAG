@@ -1,4 +1,4 @@
-import type { EvalResult, EvalRow, EvalSide } from '../src/types';
+import type { EvalResult, EvalRow, EvalSide, RetrieverMode } from '../src/types';
 import { EVAL_SET } from './evalSet';
 import type { LlmConfig } from './llm';
 import { runQuery } from './pipeline';
@@ -10,7 +10,7 @@ const sameSet = (a: string[], b: string[]) => a.length === b.length && a.every((
 
 export const EVAL_TOTAL = EVAL_SET.length;
 
-export function summarize(rows: EvalRow[]): EvalResult {
+export function summarize(rows: EvalRow[], retriever: RetrieverMode = 'tfidf'): EvalResult {
   const side = (flag: 'baselineFlagged' | 'awareFlagged', attr: 'baselineAttributed' | 'awareAttributed', ms: 'baselineMs' | 'awareMs'): EvalSide => ({
     detected: rows.filter((r) => r.expectConflict && r[flag]).length,
     falseAlarms: rows.filter((r) => !r.expectConflict && r[flag]).length,
@@ -18,6 +18,7 @@ export function summarize(rows: EvalRow[]): EvalResult {
     avgLatencyMs: rows.length ? Math.round(rows.reduce((sum, r) => sum + r[ms], 0) / rows.length) : 0,
   });
   return {
+    retriever,
     conflictQueries: rows.filter((r) => r.expectConflict).length,
     cleanQueries: rows.filter((r) => !r.expectConflict).length,
     baseline: side('baselineFlagged', 'baselineAttributed', 'baselineMs'),
@@ -26,12 +27,16 @@ export function summarize(rows: EvalRow[]): EvalResult {
   };
 }
 
-export async function runEvaluation(cfg: LlmConfig, onProgress?: (rows: EvalRow[], query: string) => void): Promise<EvalResult> {
+export async function runEvaluation(
+  cfg: LlmConfig,
+  retriever: RetrieverMode,
+  onProgress?: (rows: EvalRow[], query: string) => void,
+): Promise<EvalResult> {
   const rows: EvalRow[] = [];
 
   // Sequential to stay inside provider rate limits.
   for (const c of EVAL_SET) {
-    const r = await runQuery(cfg, c.query);
+    const r = await runQuery(cfg, c.query, {}, retriever);
     const expect = c.conflictIds.length > 0;
     rows.push({
       query: c.query,
@@ -47,5 +52,5 @@ export async function runEvaluation(cfg: LlmConfig, onProgress?: (rows: EvalRow[
     });
     onProgress?.(rows, c.query);
   }
-  return summarize(rows);
+  return summarize(rows, retriever);
 }

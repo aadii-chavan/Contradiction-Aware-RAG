@@ -1,7 +1,8 @@
-import type { PromptSet, AwareResult, BaselineResult, ConflictSource, QueryResult, RetrievedChunk } from '../src/types';
+import type { RetrieverMode, PromptSet, AwareResult, BaselineResult, ConflictSource, QueryResult, RetrievedChunk } from '../src/types';
 import { chat, type LlmConfig } from './llm';
 import { AWARE_SYSTEM, BASELINE_SYSTEM, userPrompt } from './prompts';
-import { retrieve } from './retriever';
+import { remoteRetrieve } from './pyBackend';
+import { retrieve, TOP_K } from './retriever';
 
 const CONFLICT_LABELS: Record<string, string> = {
   direct: 'Direct conflict · same parameter, incompatible values',
@@ -84,10 +85,22 @@ async function runAware(cfg: LlmConfig, query: string, chunks: RetrievedChunk[],
   };
 }
 
-export async function runQuery(cfg: LlmConfig, query: string, prompts: Partial<PromptSet> = {}): Promise<QueryResult> {
-  const chunks = retrieve(query);
+/** TF-IDF runs in-process; vector and hybrid retrieval come from the Python (LangChain + ChromaDB) backend. */
+export async function retrieveWith(retriever: RetrieverMode, query: string): Promise<RetrievedChunk[]> {
+  return retriever === 'tfidf' ? retrieve(query) : remoteRetrieve(query, retriever, TOP_K);
+}
+
+export const isRetrieverMode = (v: unknown): v is RetrieverMode => v === 'tfidf' || v === 'vector' || v === 'hybrid';
+
+export async function runQuery(
+  cfg: LlmConfig,
+  query: string,
+  prompts: Partial<PromptSet> = {},
+  retriever: RetrieverMode = 'tfidf',
+): Promise<QueryResult> {
+  const chunks = await retrieveWith(retriever, query);
   if (chunks.length === 0) throw new Error('No documents matched this query.');
   const [baseline, aware] = await Promise.all([runBaseline(cfg, query, chunks, prompts.baseline?.trim() || BASELINE_SYSTEM),
     runAware(cfg, query, chunks, prompts.aware?.trim() || AWARE_SYSTEM),]);
-  return { query, chunks, baseline, aware };
+  return { query, retriever, chunks, baseline, aware };
 }

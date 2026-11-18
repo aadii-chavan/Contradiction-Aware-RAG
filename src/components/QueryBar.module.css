@@ -72,3 +72,10 @@
   opacity: 0.5;
   cursor: default;
 }
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}

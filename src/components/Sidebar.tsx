@@ -14,9 +14,19 @@ const DASHBOARD_ITEMS = [
   { href: '#evaluation', label: 'Evaluation', svg: icon(<><path d="M5 20V10M12 20V4M19 20v-7" /></>) },
 ];
 
+const RETRIEVAL_ICON = icon(<><path d="M4 6h5M4 12h5M4 18h5" /><path d="M13 6h7M13 12h4M13 18h6" /></>);
+const AGENT_ICON = icon(<><circle cx="6" cy="6" r="2.2" /><circle cx="18" cy="6" r="2.2" /><circle cx="12" cy="18" r="2.2" /><path d="M8.2 6h7.6M7.2 7.9l3.7 8.2M16.8 7.9l-3.7 8.2" /></>);
+
+export type Page = 'dashboard' | 'documents' | 'retrieval' | 'agent';
+
+const PAGE_ITEMS: { page: Page; href: string; label: string; svg: ReactNode }[] = [
+  { page: 'retrieval', href: '#/retrieval', label: 'Retrieval lab: TF-IDF vs vector vs hybrid', svg: RETRIEVAL_ICON },
+  { page: 'agent', href: '#/agent', label: 'Agent workflow (LangGraph)', svg: AGENT_ICON },
+];
+
 const DOCS_ICON = icon(<><path d="M7 3.5h7l4 4V20a.5.5 0 0 1-.5.5h-10.5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5Z" /><path d="M14 3.5V8h4M9.5 12.5h5M9.5 16h5" /></>);
 
-export default function Sidebar({ page }: { page: 'dashboard' | 'documents' }) {
+export default function Sidebar({ page }: { page: Page }) {
   return (
     <aside className={styles.rail}>
       <div className={styles.logo} aria-hidden>
@@ -27,6 +37,18 @@ export default function Sidebar({ page }: { page: 'dashboard' | 'documents' }) {
       <nav className={styles.nav}>
         {DASHBOARD_ITEMS.map((item) => (
           <a key={item.href} href={item.href} className={styles.item} title={item.label} aria-label={item.label}>
+            {item.svg}
+          </a>
+        ))}
+        {PAGE_ITEMS.map((item) => (
+          <a
+            key={item.page}
+            href={item.href}
+            className={`${styles.item} ${page === item.page ? styles.active : ''}`}
+            title={item.label}
+            aria-label={item.label}
+            aria-current={page === item.page ? 'page' : undefined}
+          >
             {item.svg}
           </a>
         ))}

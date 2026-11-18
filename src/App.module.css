@@ -53,3 +53,8 @@
     border-radius: 28px;
   }
 }
+
+.hint {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}

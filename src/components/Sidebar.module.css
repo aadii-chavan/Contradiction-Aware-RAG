@@ -60,6 +60,14 @@
 
   .nav {
     flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .logo {
+    display: none;
   }
 }
 

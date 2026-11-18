@@ -23,8 +23,12 @@
   color: var(--text-muted);
 }
 
-.run {
+.toggle {
   margin-left: auto;
+}
+
+.run,
+.runInline {
   border: 0;
   background: var(--ink);
   color: #fff;
@@ -34,11 +38,13 @@
   cursor: pointer;
 }
 
-.run:hover:not(:disabled) {
+.run:hover:not(:disabled),
+.runInline:hover:not(:disabled) {
   background: var(--ink-soft);
 }
 
-.run:disabled {
+.run:disabled,
+.runInline:disabled {
   opacity: 0.6;
   cursor: progress;
 }

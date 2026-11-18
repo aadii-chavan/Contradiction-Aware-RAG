@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import styles from './QueryBar.module.css';
 
 interface QueryBarProps {
@@ -5,6 +6,10 @@ interface QueryBarProps {
   onQueryChange: (query: string) => void;
   onRun: () => void;
   running: boolean;
+  runLabel?: string;
+  /** Extra controls shown under the input (e.g. the retriever toggle). */
+  children?: ReactNode;
+  id?: string;
 }
 
 export default function QueryBar({
@@ -12,9 +17,12 @@ export default function QueryBar({
   onQueryChange,
   onRun,
   running,
+  runLabel = 'Run both ▸',
+  children,
+  id = 'query',
 }: QueryBarProps) {
   return (
-    <section id="query" className={styles.section}>
+    <section id={id} className={styles.section}>
       <form
         className={styles.row}
         onSubmit={(e) => {
@@ -32,9 +40,10 @@ export default function QueryBar({
           />
         </label>
         <button type="submit" className={styles.run} disabled={running || !query.trim()}>
-          {running ? 'Running…' : 'Run both ▸'}
+          {running ? 'Running…' : runLabel}
         </button>
       </form>
+      {children && <div className={styles.controls}>{children}</div>}
     </section>
   );
 }

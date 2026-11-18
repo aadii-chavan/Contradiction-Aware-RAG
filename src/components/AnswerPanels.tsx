@@ -92,7 +92,7 @@ function PanelHeader({ tag, title, latencyMs, fill }: { tag: string; title: stri
   );
 }
 
-function ConflictBanner({ aware, variant }: { aware: AwareResult; variant: BannerStyle }) {
+export function ConflictBanner({ aware, variant }: { aware: Pick<AwareResult, 'conflictType' | 'pair'>; variant: BannerStyle }) {
   return (
     <div className={`${styles.banner} ${variant === 'solid' ? styles.bannerSolid : styles.bannerTint}`} role="alert">
       <div className={styles.bannerIcon}>!</div>
@@ -105,12 +105,15 @@ function ConflictBanner({ aware, variant }: { aware: AwareResult; variant: Banne
   );
 }
 
-function SourceCard({ source }: { source: ConflictSource }) {
+export function SourceCard({ source, badge }: { source: ConflictSource; badge?: string }) {
   return (
     <div className={styles.source}>
       <div className={styles.sourceHead}>
         <span className={styles.sourceId}>{source.id}</span>
-        <span className={styles.sourceDate}>{source.date}</span>
+        <span className={styles.sourceDate}>
+          {badge && <span className={styles.sourceBadge}>{badge}</span>}
+          {source.date}
+        </span>
       </div>
       <div className={styles.sourceTitle}>{source.title}</div>
       <div className={styles.sourceExcerpt}>

@@ -1,0 +1,22 @@
+[
+  { "query": "How big a step size should the optimizer take when adapting the vision transformer to tissue slides?", "conflictIds": ["DOC-04", "DOC-09"] },
+  { "query": "Which layer normalizes activations in our image classification network?", "conflictIds": ["DOC-02", "DOC-11"] },
+  { "query": "How many images go into each update when adapting the vision transformer to tissue slides?", "conflictIds": ["DOC-04", "DOC-06"] },
+  { "query": "How many accelerators are installed in every machine of our compute farm?", "conflictIds": ["DOC-13", "DOC-14"] },
+  { "query": "Which number do we initialise the pseudo-random generator with to make runs repeatable?", "conflictIds": ["DOC-15", "DOC-16"] },
+  { "query": "What image size goes into the medical image masking network?", "conflictIds": ["DOC-17", "DOC-18"] },
+  { "query": "What fraction of units are randomly zeroed in the text classification model's output layer?", "conflictIds": ["DOC-19", "DOC-20"] },
+  { "query": "How many distinct subword units can our text splitter produce?", "conflictIds": ["DOC-21", "DOC-22"] },
+  { "query": "How many full passes over the data does the transcription network get?", "conflictIds": ["DOC-23", "DOC-24"] },
+  { "query": "How strong are the random image distortions applied during training?", "conflictIds": ["DOC-25", "DOC-26"] },
+  { "query": "How frequently do we write model snapshots to disk?", "conflictIds": ["DOC-27", "DOC-28"] },
+  { "query": "In adversarial image generation, how many critic steps happen per generator step?", "conflictIds": ["DOC-29", "DOC-30"] },
+  { "query": "How long are the vectors output by the two-tower retrieval model?", "conflictIds": ["DOC-31", "DOC-32"] },
+  { "query": "Are we allowed to use the aerial photo collection in a commercial product?", "conflictIds": ["DOC-33", "DOC-34"] },
+  { "query": "How large is the held-out split of the opinion classification data?", "conflictIds": ["DOC-35", "DOC-36"] },
+  { "query": "Over how many micro-batches are updates accumulated when pretraining the text generator?", "conflictIds": ["DOC-37", "DOC-38"] },
+  { "query": "What response time should the production service hit for 95 percent of requests?", "conflictIds": ["DOC-39", "DOC-40"] },
+  { "query": "How many hypotheses are kept during decoding when describing pictures in words?", "conflictIds": ["DOC-41", "DOC-42"] },
+  { "query": "How many past transitions does the reinforcement learning agent remember?", "conflictIds": ["DOC-43", "DOC-44"] },
+  { "query": "At what overlap score are two near-identical texts dropped during cleanup?", "conflictIds": ["DOC-45", "DOC-46"] }
+]

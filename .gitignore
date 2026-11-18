@@ -18,3 +18,10 @@ dist
 # Logs
 *.log
 npm-debug.log*
+
+# Python backend
+backend/.venv
+backend/.chroma
+backend/.models
+__pycache__
+*.pyc
