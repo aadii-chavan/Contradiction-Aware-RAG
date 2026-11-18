@@ -361,5 +361,19 @@
     "date": "2024-09-05",
     "text": "Lockfile conventions. Environment lockfiles pin Python 3.11 and PyTorch 2.3 for reproducibility.",
     "prompt": "What Python and PyTorch versions are pinned in environment lockfiles?"
+  },
+  {
+    "id": "DOC-53",
+    "title": "Training callbacks config",
+    "date": "2025-10-02",
+    "text": "Early stopping monitors validation loss with a patience of 5 epochs.",
+    "prompt": "What patience do we use for early stopping?"
+  },
+  {
+    "id": "DOC-54",
+    "title": "Experiment defaults sheet",
+    "date": "2025-02-10",
+    "text": "Default early stopping patience is 10 epochs, monitored on validation loss.",
+    "prompt": "What patience do we use for early stopping?"
   }
 ]
